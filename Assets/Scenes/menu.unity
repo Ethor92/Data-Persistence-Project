@@ -1206,7 +1206,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1694397080}
         m_TargetAssemblyTypeName: MenuUIManager, Assembly-CSharp
-        m_MethodName: SaveName
+        m_MethodName: Name
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1552,6 +1552,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerName: 
+  endScore: 0
 --- !u!4 &1694397081
 Transform:
   m_ObjectHideFlags: 0

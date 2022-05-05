@@ -20,7 +20,7 @@ public class MainManager : MonoBehaviour
 
     private bool m_Started = false;
     private int m_Points;
-    private int endScore;
+    public int endScore;
     private int highScore = 0;
     
     private bool m_GameOver = false;
@@ -35,13 +35,13 @@ public class MainManager : MonoBehaviour
     void Start()
     {
         //load player name into scene
-        MenuUIManager.Instance.SaveNameEntered();
-        MenuUIManager.Instance.LoadName();
+        
+        MenuUIManager.Instance.LoadData();
         
         playerNameText.text = MenuUIManager.Instance.playerName;
 
         //check for high score save data
-        LoadHighScore();
+        HighScoreUpdate();
 
         //create game
         const float step = 0.6f;
@@ -94,51 +94,17 @@ public class MainManager : MonoBehaviour
 
     public void GameOver()
     {
+        MenuUIManager.Instance.SavedData();
         m_GameOver = true;
         GameOverText.SetActive(true);
-        SaveScore();
-    }
-
-    [System.Serializable]
-    class SaveData
-    {
-        public int endScore;
-    }
-
-    public void SaveScore()
-    {
         endScore = m_Points;
-        SaveData data = new SaveData();
-        data.endScore = endScore;
-
-        string json = JsonUtility.ToJson(data);
-
-        File.WriteAllText(Application.persistentDataPath + "/savefile.json", json);
-
+        
     }
 
-    public void LoadScore()
-    {
-        string path = Application.persistentDataPath + "/savefile.json";
-        if (File.Exists(path))
-        {
-            string json = File.ReadAllText(path);
-            SaveData data = JsonUtility.FromJson<SaveData>(json);
-
-            endScore = data.endScore;
-        }
-    }
-
-    void LoadHighScore()
+    void HighScoreUpdate()
     {
         
-        LoadScore();
-        if(endScore > highScore)
-        {
-            highScoreText.text = $"High Score : {endScore}";
-        }
-
+        highScoreText.text = $"High Score : {endScore}";
+        
     }
-
-
 }

@@ -12,6 +12,9 @@ public class MenuUIManager : MonoBehaviour
 
     public static MenuUIManager Instance;
     public string playerName;
+    
+
+    private MainManager mainManager;
 
     private void Awake()
     {
@@ -24,6 +27,11 @@ public class MenuUIManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
         
+    }
+
+    private void Start()
+    {
+        mainManager = GameObject.Find("MainManager").GetComponent<MainManager>();
     }
 
     public void StartNew()
@@ -51,7 +59,7 @@ public class MenuUIManager : MonoBehaviour
 
     public void SaveNameEntered()
     {
-        MenuUIManager.Instance.SaveName(playerName);
+        //MenuUIManager.Instance.SavedData(playerName, endScore);
     }
 
     public void LoadNameEntered()
@@ -64,24 +72,23 @@ public class MenuUIManager : MonoBehaviour
     class SaveData
     {
         public string playerName;
-
+        public int endScore;
     }
 
     
-    public void SaveName(string s)
+    public void SavedData()
     {
-        playerName = s;
-        Debug.Log(playerName);
-
+        
         SaveData data = new SaveData();
         data.playerName = playerName;
+        data.endScore = mainManager.endScore;
 
         string json = JsonUtility.ToJson(data);
 
         File.WriteAllText(Application.persistentDataPath + "/savefile.json", json);
     }
 
-    public void LoadName()
+    public void LoadData()
     {
         string path = Application.persistentDataPath + "/savefile.json";
         if (File.Exists(path))
@@ -90,6 +97,15 @@ public class MenuUIManager : MonoBehaviour
             SaveData data = JsonUtility.FromJson<SaveData>(json);
 
             playerName = data.playerName;
+            mainManager.endScore = data.endScore;
+            Debug.Log("data score is: " + data.endScore);
+
         }
+    }
+
+    public void Name(string s)
+    {
+        playerName = s;
+        Debug.Log(playerName);
     }
 }
