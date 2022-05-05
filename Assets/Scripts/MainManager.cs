@@ -15,9 +15,13 @@ public class MainManager : MonoBehaviour
 
     public Text ScoreText;
     public GameObject GameOverText;
+    public Text highScoreText;
+    public string playerName;
 
     private bool m_Started = false;
     private int m_Points;
+    private int endScore;
+    private int highScore = 0;
     
     private bool m_GameOver = false;
 
@@ -30,10 +34,16 @@ public class MainManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        //load player name into scene
+        MenuUIManager.Instance.SaveNameEntered();
         MenuUIManager.Instance.LoadName();
         
         playerNameText.text = MenuUIManager.Instance.playerName;
 
+        //check for high score save data
+        LoadHighScore();
+
+        //create game
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
         
@@ -86,23 +96,49 @@ public class MainManager : MonoBehaviour
     {
         m_GameOver = true;
         GameOverText.SetActive(true);
+        SaveScore();
     }
 
     [System.Serializable]
     class SaveData
     {
-        public int m_Points;
+        public int endScore;
     }
 
     public void SaveScore()
     {
+        endScore = m_Points;
         SaveData data = new SaveData();
-        data.m_Points = m_Points;
+        data.endScore = endScore;
 
         string json = JsonUtility.ToJson(data);
 
         File.WriteAllText(Application.persistentDataPath + "/savefile.json", json);
 
     }
+
+    public void LoadScore()
+    {
+        string path = Application.persistentDataPath + "/savefile.json";
+        if (File.Exists(path))
+        {
+            string json = File.ReadAllText(path);
+            SaveData data = JsonUtility.FromJson<SaveData>(json);
+
+            endScore = data.endScore;
+        }
+    }
+
+    void LoadHighScore()
+    {
+        
+        LoadScore();
+        if(endScore > highScore)
+        {
+            highScoreText.text = $"High Score : {endScore}";
+        }
+
+    }
+
 
 }

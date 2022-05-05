@@ -51,7 +51,7 @@ public class MenuUIManager : MonoBehaviour
 
     public void SaveNameEntered()
     {
-        //MainManager.Instance.SaveColor();
+        MenuUIManager.Instance.SaveName(playerName);
     }
 
     public void LoadNameEntered()
