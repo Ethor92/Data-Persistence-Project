@@ -10,21 +10,8 @@ using TMPro;
 public class MenuUIManager : MonoBehaviour
 {
 
-    public static MenuUIManager Instance;
     public string playerName;
 
-    private void Awake()
-    {
-        if (Instance != null)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        Instance = this;
-        DontDestroyOnLoad(gameObject);
-        
-    }
 
     public void StartNew()
     {
@@ -41,7 +28,7 @@ public class MenuUIManager : MonoBehaviour
 
     public void Exit()
     {
-        //MainManager.Instance.SaveColor();
+        
 #if UNITY_EDITOR
         EditorApplication.ExitPlaymode();
 #else
@@ -49,47 +36,12 @@ public class MenuUIManager : MonoBehaviour
 #endif
     }
 
-    public void SaveNameEntered()
-    {
-        MenuUIManager.Instance.SaveName(playerName);
-    }
-
-    public void LoadNameEntered()
-    {
-        //MainManager.Instance.LoadColor();
-        //ColorPicker.SelectColor(MainManager.Instance.TeamColor);
-    }
-
-    [System.Serializable]
-    class SaveData
-    {
-        public string playerName;
-
-    }
-
     
-    public void SaveName(string s)
+    public void Name(string s)
     {
         playerName = s;
-        Debug.Log(playerName);
-
-        SaveData data = new SaveData();
-        data.playerName = playerName;
-
-        string json = JsonUtility.ToJson(data);
-
-        File.WriteAllText(Application.persistentDataPath + "/savefile.json", json);
-    }
-
-    public void LoadName()
-    {
-        string path = Application.persistentDataPath + "/savefile.json";
-        if (File.Exists(path))
-        {
-            string json = File.ReadAllText(path);
-            SaveData data = JsonUtility.FromJson<SaveData>(json);
-
-            playerName = data.playerName;
-        }
+        GameManager.Instance.playerName = playerName;
+        Debug.Log("signed in as " + playerName);
+        
     }
 }

@@ -8,6 +8,7 @@ using System.IO;
 public class MainManager : MonoBehaviour
 {
     public Text playerNameText;
+    public Text highScoreNameText;
 
     public Brick BrickPrefab;
     public int LineCount = 6;
@@ -15,33 +16,29 @@ public class MainManager : MonoBehaviour
 
     public Text ScoreText;
     public GameObject GameOverText;
-    public Text highScoreText;
     public string playerName;
+    private static string highScoreName;
 
     private bool m_Started = false;
     private int m_Points;
-    private int endScore;
-    private int highScore = 0;
+    private static int highScore;
+    private int currentScore;
     
     private bool m_GameOver = false;
 
-    
+
     private void Awake()
     {
-        
+        LoadData(); 
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        //load player name into scene
-        MenuUIManager.Instance.SaveNameEntered();
-        MenuUIManager.Instance.LoadName();
         
-        playerNameText.text = MenuUIManager.Instance.playerName;
-
-        //check for high score save data
-        LoadHighScore();
+        //current player name
+        playerNameText.text = GameManager.Instance.playerName;
+        
 
         //create game
         const float step = 0.6f;
@@ -58,6 +55,8 @@ public class MainManager : MonoBehaviour
                 brick.onDestroyed.AddListener(AddPoint);
             }
         }
+
+        SetHighScore();
     }
 
     private void Update()
@@ -67,7 +66,6 @@ public class MainManager : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.Space))
             {
                 
-
                 m_Started = true;
                 float randomDirection = Random.Range(-1.0f, 1.0f);
                 Vector3 forceDir = new Vector3(randomDirection, 1, 0);
@@ -89,27 +87,51 @@ public class MainManager : MonoBehaviour
     void AddPoint(int point)
     {
         m_Points += point;
+        GameManager.Instance.highScore = m_Points;
         ScoreText.text = $"Score : {m_Points}";
+        
     }
 
     public void GameOver()
     {
+        //check for high score save data
+        HighScoreUpdate();
+
         m_GameOver = true;
         GameOverText.SetActive(true);
-        SaveScore();
+        
+    }
+
+    void HighScoreUpdate()
+    {
+        int currentScore = GameManager.Instance.highScore;
+
+        if (currentScore > highScore)
+        {
+            highScore = currentScore;
+            highScoreName = GameManager.Instance.playerName;
+
+            highScoreNameText.text = $"High Score: {highScoreName}: {highScore}";
+
+            SavedData(highScoreName, highScore);
+            
+        }
     }
 
     [System.Serializable]
     class SaveData
     {
-        public int endScore;
+        public string highScoreName;
+        public int highScore;
+
     }
 
-    public void SaveScore()
+    public void SavedData(string highScoreName, int highScore)
     {
-        endScore = m_Points;
         SaveData data = new SaveData();
-        data.endScore = endScore;
+
+        data.highScoreName = highScoreName;
+        data.highScore = highScore;
 
         string json = JsonUtility.ToJson(data);
 
@@ -117,7 +139,7 @@ public class MainManager : MonoBehaviour
 
     }
 
-    public void LoadScore()
+    public void LoadData()
     {
         string path = Application.persistentDataPath + "/savefile.json";
         if (File.Exists(path))
@@ -125,20 +147,24 @@ public class MainManager : MonoBehaviour
             string json = File.ReadAllText(path);
             SaveData data = JsonUtility.FromJson<SaveData>(json);
 
-            endScore = data.endScore;
+            highScoreName = data.highScoreName;
+            highScore = data.highScore;
+
         }
     }
 
-    void LoadHighScore()
+    void SetHighScore()
     {
-        
-        LoadScore();
-        if(endScore > highScore)
+        if(highScoreName == null && highScore == 0)
         {
-            highScoreText.text = $"High Score : {endScore}";
+            highScoreNameText.text = "";
         }
-
+        else
+        {
+            highScoreNameText.text = $"High Score: {highScoreName}: {highScore}";
+        }
     }
+
 
 
 }
